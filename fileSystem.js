@@ -1,11 +1,11 @@
 const fs = require('fs')
 const restoreFromJSON = require('./tree/tree').restoreFromJSON
 
-const writeFileSystem = (node, name, encryption) => {
+const writeFileSystem = (node, encryption) => {
   const rootNode = node.getRoot()
   const data = rootNode.toJSON()
   const hiddenData = encryption.encrypt(data)
-  fs.writeFileSync(`./contents/${name}.sfs`, hiddenData)
+  fs.writeFileSync(`./contents/${rootNode.name}.sfs`, hiddenData)
 }
 
 const readFileSystem = (name, encryption) => {

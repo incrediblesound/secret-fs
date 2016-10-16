@@ -32,7 +32,7 @@ try {
   }
 } catch (e) {
   rootNode = new tree.Tree({name})
-  fileSystem.writeFileSystem(rootNode, name, encryption)
+  fileSystem.writeFileSystem(rootNode, encryption)
 }
 
 function sfsPrompt () {
@@ -45,7 +45,7 @@ function sfsPrompt () {
     /* MKDIR */
     } else if (query[0] === 'mkdir' && query[1].length) {
       rootNode.create(query[1])
-      fileSystem.writeFileSystem(rootNode, name, encryption)
+      fileSystem.writeFileSystem(rootNode, encryption)
       sfsPrompt()
     /* CD */
     } else if (query[0] === 'cd') {
@@ -70,9 +70,14 @@ function sfsPrompt () {
         const fileName = encryption.encrypt(`${path}/${title}`)
         const contents = encryption.encrypt(doc.content)
         fs.writeFileSync(`./contents/${fileName}`, contents)
-        const child = new tree.Tree({ name: title, type: c.FILE, contents: fileName })
+        const child = new tree.Tree({
+          name: title,
+          type: c.FILE,
+          contents: fileName,
+          parent: rootNode
+        })
         rootNode.insert(child)
-        fileSystem.writeFileSystem(rootNode, name, encryption)
+        fileSystem.writeFileSystem(rootNode, encryption)
         sfsPrompt()
       }, () => {
         sfsPrompt()})
@@ -80,10 +85,17 @@ function sfsPrompt () {
     } else if (query[0] === 'open' && query[1]) {
       let file
       const fileNode = rootNode.findChild(query[1])
+      if (!fileNode) {
+        console.log(`No file named "${query[1]}"`)
+        return sfsPrompt()
+      }
       const fileName = fileNode.contents
       try {
         file = fs.readFileSync(`./contents/${fileName}`)
-      } catch(e) { console.log(`No file named ${query[1]}`) }
+      } catch(e) {
+        console.log(`The data for file "${query[1]}" is missing.`)
+        return sfsPrompt()
+      }
       if (file) {
         file = file.toString()
         const data = encryption.decrypt(file)
@@ -94,6 +106,26 @@ function sfsPrompt () {
         }, () => {
           sfsPrompt()})
       }
+    /* RM */
+    } else if (query[0] === 'rm' && query[1]) {
+      const fileNode = rootNode.findChild(query[1])
+      if (!fileNode) {
+        console.log(`No file or directory named "${query[1]}"`)
+        return sfsPrompt()
+      }
+      if (fileNode.type === c.DIRECTORY) {
+        rl.question(`Are you sure you want to delete the directory "${query[1]}" and everything in it? (y/n):> `, (answer) => {
+          if (answer === 'y') {
+            fileNode.removeSelf()
+          }
+          fileSystem.writeFileSystem(rootNode, encryption)
+          return sfsPrompt()
+        })
+      } else {
+        fileNode.removeSelf()
+        fileSystem.writeFileSystem(rootNode, encryption)
+      }
+    /* VARIOUS UTIL */
     } else if (query[0] === 'tree') {
       console.log(rootNode)
       sfsPrompt()

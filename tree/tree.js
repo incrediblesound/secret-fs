@@ -1,3 +1,4 @@
+const fs = require('fs')
 const c = require('../constants')
 
 class Tree {
@@ -25,7 +26,27 @@ class Tree {
   insert (child) {
     this.children.push(child)
   }
-  addDocument (doc) {}
+  removeSelf () {
+    if (this.type === c.DIRECTORY) {
+      this.children.forEach(child => child.removeSelf())
+      this.parent.deleteChild(this.name)
+    } else {
+      fs.unlinkSync(`./contents/${this.contents}`)
+      this.parent.deleteChild(this.name)
+    }
+  }
+  deleteChild (name) {
+    let index = false
+    for (let i = 0, l = this.children.length; i < l; i++) {
+      if (this.children[i].name === name) {
+        index = i
+        break
+      }
+    }
+    if (index !== false) {
+      this.children.splice(index, 1)
+    }
+  }
   findChild (name) {
     for (let i = 0, l = this.children.length; i < l; i++) {
       if (this.children[i].name === name) {
@@ -66,6 +87,7 @@ const restoreFromJSON = (data, parent = null) => {
   }
   const rootNode = new Tree({
     name: data.name,
+    type: data.type,
     contents: data.contents,
     parent: parent
   })
