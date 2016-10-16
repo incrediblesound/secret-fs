@@ -1,7 +1,7 @@
 Secret File System
 ==================
 
-Secret file system is a terminal program that allows you to save encrypted files in an encrypted file system.
+Secret file system is a terminal program that opens up a shell where you can create directories and save text files. It includes a minimal text editor for creating the files. The file names and contents of the directory tree and all the files contained within it are encrypted.
 
 Step 1: Load a file system.
 -----
