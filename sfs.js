@@ -21,12 +21,12 @@ FILE_INDEX = 0
 if (!name || !secret) {
   throw new Error('Sfs requires a name and a secret.')
 }
-
 const encryption = require('./encryption')(secret)
+fileSystemName = encryption.encrypt(name)
 
 let rootNode, input
 try {
-  const stats = fs.statSync(`./contents/${name}.sfs`)
+  const stats = fs.statSync(`./contents/${fileSystemName}.sfs`)
   if (stats.isFile()) {
     rootNode = fileSystem.readFileSystem(name, encryption)
   }

@@ -5,11 +5,13 @@ const writeFileSystem = (node, encryption) => {
   const rootNode = node.getRoot()
   const data = rootNode.toJSON()
   const hiddenData = encryption.encrypt(data)
-  fs.writeFileSync(`./contents/${rootNode.name}.sfs`, hiddenData)
+  const fileSystemName = encryption.encrypt(rootNode.name)
+  fs.writeFileSync(`./contents/${fileSystemName}.sfs`, hiddenData)
 }
 
 const readFileSystem = (name, encryption) => {
-  const hiddenData = fs.readFileSync(`./contents/${name}.sfs`).toString()
+  const fileSystemName = encryption.encrypt(name)
+  const hiddenData = fs.readFileSync(`./contents/${fileSystemName}.sfs`).toString()
   const rawData = encryption.decrypt(hiddenData)
   const data = JSON.parse(rawData)
   const rootNode = restoreFromJSON(data)
