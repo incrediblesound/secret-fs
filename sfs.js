@@ -115,7 +115,7 @@ function sfsPrompt () {
       }
       if (fileNode.type === c.DIRECTORY) {
         rl.question(`Are you sure you want to delete the directory "${query[1]}" and everything in it? (y/n):> `, (answer) => {
-          if (answer === 'y') {
+          if (answer === 'y' || answer === 'yes') {
             fileNode.removeSelf()
           }
           fileSystem.writeFileSystem(rootNode, encryption)
@@ -126,6 +126,17 @@ function sfsPrompt () {
         fileSystem.writeFileSystem(rootNode, encryption)
       }
     /* VARIOUS UTIL */
+    } else if (query[0] === 'delete-all') {
+      rl.question('Are you sure you want to delete your entire file system? This action cannot be undone. (y/n):> ', (answer) => {
+        if (answer === 'y' || answer === 'yes') {
+          const parentNode = rootNode.getRoot()
+          parentNode.children.forEach(child => {
+            child.removeSelf()
+          })
+          fileSystem.removeFileSystem(name, encryption)
+          process.exit()
+        }
+      })
     } else if (query[0] === 'tree') {
       console.log(rootNode)
       sfsPrompt()
