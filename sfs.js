@@ -26,7 +26,7 @@ fileSystemName = encryption.encrypt(name)
 
 let rootNode, input
 try {
-  const stats = fs.statSync(`./contents/${fileSystemName}.sfs`)
+  const stats = fs.statSync(`./contents/${fileSystemName}`)
   if (stats.isFile()) {
     rootNode = fileSystem.readFileSystem(name, encryption)
   }
